@@ -1,0 +1,115 @@
+Código SQL da criação das tabelas 
+
+
+
+CREATE TABLE clientes (
+    id_cliente INTEGER PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    telefone VARCHAR(20),
+    email VARCHAR(100)
+);
+
+CREATE TABLE djs (
+    id_dj INTEGER PRIMARY KEY,
+    nome_artistico VARCHAR(100) NOT NULL,
+    genero_musical VARCHAR(50),
+    telefone VARCHAR(20),
+    cache NUMERIC(10,2)
+);
+
+CREATE TABLE saloes (
+    id_salao INTEGER PRIMARY KEY,
+    nome_salao VARCHAR(100) NOT NULL,
+    capacidade INTEGER,
+    valor_aluguel NUMERIC(10,2)
+);
+
+CREATE TABLE festas (
+    id_festa INTEGER PRIMARY KEY,
+    tema VARCHAR(100) NOT NULL,
+    data_festa DATE NOT NULL,
+    horario TIME,
+    quantidade_convidados INTEGER,
+    valor_total NUMERIC(10,2),
+    id_cliente INTEGER NOT NULL,
+    id_salao INTEGER NOT NULL,
+
+    CONSTRAINT fk_festa_cliente
+        FOREIGN KEY (id_cliente)
+        REFERENCES clientes(id_cliente),
+
+    CONSTRAINT fk_festa_salao
+        FOREIGN KEY (id_salao)
+        REFERENCES saloes(id_salao)
+);
+
+CREATE TABLE contratos_djs (
+    id_contrato INTEGER PRIMARY KEY,
+    data_contrato DATE NOT NULL,
+    valor_contrato NUMERIC(10,2),
+    horario_inicio TIME,
+    horario_fim TIME,
+    observacoes VARCHAR(200),
+    id_festa INTEGER NOT NULL,
+    id_dj INTEGER NOT NULL,
+
+    CONSTRAINT fk_contrato_festa
+        FOREIGN KEY (id_festa)
+        REFERENCES festas(id_festa),
+
+    CONSTRAINT fk_contrato_dj
+        FOREIGN KEY (id_dj)
+        REFERENCES djs(id_dj)
+);
+
+
+
+
+
+
+
+***CONSULTAS :
+
+FATURAMENTO:
+
+SELECT
+    EXTRACT(MONTH FROM data_festa) AS mes,
+    SUM(valor_total) AS faturamento
+FROM festas
+GROUP BY mes
+ORDER BY mes;
+
+
+USO DE SALÕES:
+
+
+SELECT
+    s.nome_salao,
+    COUNT(*) AS total_festas
+FROM festas f
+JOIN saloes s ON f.id_salao = s.id_salao
+GROUP BY s.nome_salao
+ORDER BY total_festas DESC;
+
+
+FESTAS POR MES:
+
+
+SELECT
+    EXTRACT(MONTH FROM data_festa) AS mes,
+    COUNT(*) AS total_festas
+FROM festas
+GROUP BY mes
+ORDER BY mes;
+
+
+TEMAS MAIS USADOS DE FESTAS:
+
+
+SELECT
+    tema,
+    COUNT(*) AS quantidade
+FROM festas
+GROUP BY tema
+ORDER BY quantidade DESC;
+
